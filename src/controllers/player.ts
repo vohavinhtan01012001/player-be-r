@@ -224,52 +224,47 @@ export const createPlayerUser = async (
 
 export const updatePlayer = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { id } = req.params;
-        const payload = req.body;
+        const id = parseInt(req.params.id); // Player ID
+        const payload = req.body; // Extract gameIds separately from other payload data
         const files: any = req.files;
 
-        if (files && files.avatar && files.avatar.length > 0) {
+        // Handle avatar upload
+        if (files?.avatar?.length > 0) {
             const avatar = files.avatar[0];
             const avatarUrl = await new Promise<string>((resolve, reject) => {
                 cloudinary.uploader.upload_stream(
-                    {
-                        folder: "player/avatars",
-                    },
+                    { folder: "player/avatars" },
                     (error: any, result: any) => {
-                        if (error) {
-                            reject(error);
-                        } else {
-                            resolve(result.secure_url);
-                        }
+                        if (error) reject(error);
+                        else resolve(result.secure_url);
                     }
                 ).end(avatar.buffer);
             });
-            payload.avatar = avatarUrl; 
+            payload.avatar = avatarUrl;
         }
 
-        if (files && files["images[]"] && files["images[]"].length > 0) {
-            const imagePromises = files["images[]"].map((image: any) => {
-                return new Promise<string>((resolve, reject) => {
+        // Handle additional images upload
+        if (files?.["images[]"]?.length > 0) {
+            const imagePromises = files["images[]"].map((image: any) =>
+                new Promise<string>((resolve, reject) => {
                     cloudinary.uploader.upload_stream(
-                        {
-                            folder: "player/images",
-                        },
+                        { folder: "player/images" },
                         (error: any, result: any) => {
-                            if (error) {
-                                reject(error);
-                            } else {
-                                resolve(result.secure_url);
-                            }
+                            if (error) reject(error);
+                            else resolve(result.secure_url);
                         }
                     ).end(image.buffer);
-                });
-            });
+                })
+            );
 
             const imagesUrls = await Promise.all(imagePromises);
-            payload.images = imagesUrls; 
+            payload.images = imagesUrls;
         }
 
-        const updatedPlayer = await updatePlayerService(id, payload);
+        console.log(payload);
+        const gameIds: number[] = payload.games || []; 
+        // Call update service with player data and game IDs    
+        const updatedPlayer = await updatePlayerService(id, payload, gameIds);
 
         return res.status(200).json({
             data: updatedPlayer,
@@ -280,6 +275,7 @@ export const updatePlayer = async (req: Request, res: Response, next: NextFuncti
         next(err);
     }
 };
+
 
 export const deletePlayer = async (req: Request, res: Response, next: NextFunction) => {
     try {

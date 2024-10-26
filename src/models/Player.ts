@@ -48,9 +48,8 @@ class Player extends Model<PlayerAttributes, PlayerCreationAttributes> implement
 
     // Include methods for managing Game associations
     public addGames!: (game: Game | Game[], options?: any) => Promise<void>;
-    public getGames!: (options?: any) => Promise<Game[]>;
-    public removeGame!: (game: Game | Game[], options?: any) => Promise<void>;
-
+    public removeGames!: (game: Game | Game[], options?: any) => Promise<void>;
+    public setGames!: (games: Game | Game[], options?: any) => Promise<void>;
     static validPassword: (password: string, hash: string) => boolean;
 }
 
@@ -84,7 +83,7 @@ Player.init(
         },
         status: {
             type: DataTypes.INTEGER,
-            defaultValue: 1, // 1: hoạt động, 2: không hoạt động, v.v.
+            defaultValue: 1, // 1: hoạt động, 2: không hoạt động, 3: Đang bận, 4:chờ duyệt, 5: không duyệt
         },
         followers: {
             type: DataTypes.INTEGER,

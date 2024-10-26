@@ -2,6 +2,7 @@ import { Router } from "express";
 import { getPlayers, createPlayer, updatePlayer, deletePlayer, getPlayerById, createPlayerUser, updateStatusPlayer, getPlayerData, getPlayersClient } from "../../controllers/player";
 import multer from "multer";
 import isAdmin from "../../middleware/isAdmin";
+import requireUser from "../../middleware/requiresUser";
 
 const playerRouter = Router();
 const storage = multer.memoryStorage();
@@ -25,7 +26,7 @@ playerRouter.post("/add-player-user",
     createPlayerUser
 );
 playerRouter.put("/update-player/:id",
-    isAdmin,
+    requireUser,
      upload.fields([
         { name: "images[]", maxCount: 10 }, 
         { name: "avatar", maxCount: 1 },

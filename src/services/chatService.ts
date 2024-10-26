@@ -1,17 +1,16 @@
 import Chat from "../models/Chat";  // Assuming you have the Chat model defined similarly to Notification
 
 // Get all chats for a specific user
-export const getChatsService = async (userId: number) => {
+export const getChatsService = async (userId: number,playerId:number) => {
   const chats = await Chat.findAll({
-    where: { userId },
-    order: [["created_at", "DESC"]],  // Order by most recent chats first
+    where: { userId,playerId },
   });
   return chats;
 };
 
 // Create a new chat message
-export const createChatService = async (chatData: { playerId: number; userId: number; message: string }) => {
-  const chat = await Chat.create(chatData);  // Create a new chat record in the database
+export const createChatService = async (chatData: { playerId: number; userId: number; message: string,senderType:string }) => {
+  const chat = await Chat.create(chatData as any);  // Create a new chat record in the database
   return chat;
 };
 

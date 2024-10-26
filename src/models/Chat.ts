@@ -4,8 +4,9 @@ import sequelizeConnection from "../db/connection";
 // Define attributes for Chat
 interface ChatAttributes {
   id: number;
-  playerId: number;    // Refers to the player (User)
-  userId: number;      // Refers to the user initiating the chat
+  playerId?: number;    // Refers to the player (optional if senderType is 'user')
+  userId?: number;      // Refers to the user (optional if senderType is 'player')
+  senderType: "user" | "player"; // Field to determine the sender type
   message: string;
   created_at?: Date;
   updated_at?: Date;
@@ -17,8 +18,9 @@ interface ChatCreationAttributes extends Optional<ChatAttributes, "id"> {}
 // Define the Chat model class
 class Chat extends Model<ChatAttributes, ChatCreationAttributes> implements ChatAttributes {
   public id!: number;
-  public playerId!: number;
-  public userId!: number;
+  public playerId?: number;
+  public userId?: number;
+  public senderType!: "user" | "player";  // Add the senderType field
   public message!: string;
 
   public readonly created_at!: Date;
@@ -35,13 +37,17 @@ Chat.init(
     },
     playerId: {
       type: DataTypes.INTEGER,
-      allowNull: false,
-      references: { model: "players", key: "id" }, // Foreign key reference to the User model (Player)
+      allowNull: true, // Allow null since either playerId or userId will be used
+      references: { model: "players", key: "id" }, // Foreign key reference to the Player model
     },
     userId: {
       type: DataTypes.INTEGER,
+      allowNull: true, // Allow null since either playerId or userId will be used
+      references: { model: "users", key: "id" }, // Foreign key reference to the User model
+    },
+    senderType: {
+      type: DataTypes.ENUM("user", "player"), // Define the sender type
       allowNull: false,
-      references: { model: "users", key: "id" }, // Foreign key reference to the User model (Initiating User)
     },
     message: {
       type: DataTypes.TEXT,

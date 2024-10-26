@@ -3,6 +3,7 @@ import app from "./app";
 import { v2 as cloudinary } from "cloudinary";
 import http from "http";
 import { Server as SocketIO } from "socket.io";
+import { clientConfig } from "./config/config";
 
 // Configure Cloudinary
 cloudinary.config({
@@ -25,8 +26,8 @@ if (process.env.NODE_ENV === "development") {
 const server = http.createServer(app);
 const io = new SocketIO(server, {
   cors: {
-    origin: "http://localhost:5173", // Replace with your client's origin
-    methods: ["GET", "POST"],
+    origin: clientConfig.clientUrl, // Replace with your client's origin
+    methods: ["GET", "POST","DELETE","PUT"],
   },
 });
 

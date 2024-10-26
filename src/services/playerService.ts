@@ -33,7 +33,7 @@ export const getPlayersClientService = async ({ gameId }: { gameId?: number }) =
         ],
         where: {
             status: {
-                [Op.or]: [1, 2] 
+                [Op.or]: [1, 2, 3] 
             }
         },
         order: [["created_at", "DESC"]]
@@ -97,16 +97,30 @@ export const createPlayerService = async (
 
 
 
-// Update player details
-export const updatePlayerService = async (id: string, payload: any) => {
-    const player = await Player.findByPk(id);
+export const updatePlayerService = async (
+    playerId: number,
+    playerData: any,
+    gameIds: number[]
+) => {
+    const player = await Player.findByPk(playerId);
     if (!player) {
         throw new Error("Player not found");
     }
-    return Player.update(payload, {
-        where: { id: id },
+
+    await player.update(playerData);
+
+    const games = await Game.findAll({
+        where: {
+            id: gameIds,
+        },
     });
+
+    await player.setGames(games);
+
+    return player;
 };
+
+
 
 
 

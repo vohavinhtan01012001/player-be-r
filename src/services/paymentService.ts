@@ -1,6 +1,6 @@
 import qs from "qs";
 import crypto from "crypto";
-import { paymentConfig } from "../config/config";
+import { clientConfig, paymentConfig } from "../config/config";
 import User from "../models/User";
 import { io } from "../server";
 import { createNotificationService, getNotificationsService } from "./notificationService";
@@ -30,7 +30,7 @@ export const vnpaymentService = async (amount:number,userId:number,req: any) => 
     try {
       const id = Math.floor(Math.random() * 10000).toString();
       const vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-      const vnp_Returnurl = "http://localhost:5173/thanks";
+      const vnp_Returnurl = `${clientConfig.clientUrl}/thanks`;
       const vnp_TmnCode = paymentConfig.tmncode; // Mã website tại VNPAY
       const vnp_HashSecret = paymentConfig.hashsecret; // Chuỗi bí mật
   
@@ -133,15 +133,16 @@ export const vnpaymentService = async (amount:number,userId:number,req: any) => 
   
               const currentPrice = user.price;
               const depositAmount = amount / 100; 
+              const amountDes = depositAmount - (depositAmount * 0.01);
   
-              const newPrice = currentPrice + depositAmount;
+              const newPrice = currentPrice + amountDes;
   
               await User.update({ price: newPrice }, { where: { id: userId } });
   
               const path = "/profile";
               await createNotificationService({
                 title: "Deposit successful",
-                message: `Successfully deposited ${new Intl.NumberFormat("vi-VN").format((Number(depositAmount) || 0))}`,
+                message: `Successfully deposited ${new Intl.NumberFormat("vi-VN").format((Number(amountDes) || 0))}`,
                 userId: userId,
                 path,
               });
@@ -150,7 +151,7 @@ export const vnpaymentService = async (amount:number,userId:number,req: any) => 
   
               io.emit("newPriceNotification", {
                 userId: userId,
-                message: `Successfully deposited ${new Intl.NumberFormat("vi-VN").format((Number(depositAmount) || 0))}`,
+                message: `Successfully deposited ${new Intl.NumberFormat("vi-VN").format((Number(amountDes) || 0))}`,
                 player: notifications,
               });
   

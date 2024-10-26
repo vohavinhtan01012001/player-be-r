@@ -8,6 +8,7 @@ import playerRouter from "./playerRoute";
 import notificationRouter from "./notificationRoute";
 import paymentRouter from "./paymentRoute";
 import rentalRequestRouter from "./rentalRequestRoute";
+import chatRouter from "./chatRoute";
 
 const appRouter = Router();
 
@@ -36,6 +37,10 @@ const appRoutes = [
   {
     path: "/notification",
     router: notificationRouter,
+  },
+  {
+    path: "/chat",
+    router: chatRouter,
   },
   {
     path: "/payment",

@@ -7,6 +7,7 @@ import {
 } from "../services/chatService"; 
 import { customRequest } from "customDefinition";
 import { io } from "../server";  // For real-time chat updates using socket.io
+import { parseInt } from "lodash";
 
 // Get all chats for a specific user
 export const getChats = async (
@@ -15,8 +16,9 @@ export const getChats = async (
   next: NextFunction
 ) => {
   try {
-    const userId = req.user.id;  // Assuming user is authenticated and `req.user.id` is available
-    const chats = await getChatsService(userId);  // Fetching chats related to this user
+    const playerId = parseInt(req.params.playerId);
+    const userId = parseInt(req.params.userId);
+    const chats = await getChatsService(userId,playerId);
     return res.status(200).json({
       data: chats,
       error: false,
@@ -28,13 +30,13 @@ export const getChats = async (
 
 // Create a new chat message
 export const createChat = async (
-  req: Request,
+  req: customRequest,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const { playerId, userId, message } = req.body;  // Assuming playerId and userId are passed in the body
-    const chat = await createChatService({ playerId, userId, message });
+    const { playerId, message,userId,senderType } = req.body;
+    const chat = await createChatService({ playerId, userId, message,senderType });
     
     io.emit("newChatMessage", chat);
 
@@ -46,6 +48,8 @@ export const createChat = async (
     next(err);
   }
 };
+
+
 
 // Update an existing chat message
 export const updateChat = async (

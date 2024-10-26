@@ -52,7 +52,24 @@ export const deleteRentalRequestService = async (id: string) => {
 
 export const getRentalRequestByIdPlayerService = async (id: number) => {
   const rentalRequest = await RentalRequest.findAll({
-    where: { playerId: id },
+    where: { playerId: id,status:0 },
+    include: [
+      { model: User, attributes: ["id", "fullName", "email"] },  // Include user details
+      { model: Player, attributes: ["id", "name"] },  // Include player details
+    ],
+  });
+
+  if (!rentalRequest) {
+    throw new Error("Rental request not found");
+  }
+
+  return rentalRequest; 
+};
+
+
+export const getRentalRequestByIdPlayerAllService = async (id: number) => {
+  const rentalRequest = await RentalRequest.findAll({
+    where: { playerId: id},
     include: [
       { model: User, attributes: ["id", "fullName", "email"] },  // Include user details
       { model: Player, attributes: ["id", "name"] },  // Include player details
