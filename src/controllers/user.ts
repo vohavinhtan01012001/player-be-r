@@ -1,4 +1,4 @@
-import { findOneUser, getUsersService, updateUserById, updateUserService } from "../services/userService";
+import { changePasswordService, findOneUser, getUsersService, updatePriceService, updateUserById, updateUserService } from "../services/userService";
 import { NextFunction, Response } from "express";
 import { omit } from "lodash";
 import { customRequest } from "../types/customDefinition";
@@ -83,3 +83,46 @@ export const updateUserByAdmin = async (
     next(err);
   }
 };
+
+export const updatePrice = async (
+  req: customRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const price = req.body.price;
+    const message = req.body.message;
+    const playerId = req.body.playerId;
+    const userId = parseInt(req.user.id);
+    const updated = await updatePriceService(price,playerId,userId,message);
+    return res.status(200).json({
+      msg: updated,
+      error: false,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+export const changePassword = async (
+  req: customRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = parseInt(req.user.id);
+    const { newPassword,oldPassword } = req.body;
+    if (!newPassword) {
+      throw new ApiError(400, "New password is required");
+    }
+    await changePasswordService(userId, oldPassword,newPassword);
+    return res.status(200).json({
+      msg: "Password changed successfully",
+      error: false,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+

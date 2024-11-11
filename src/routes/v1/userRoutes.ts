@@ -1,15 +1,16 @@
 import { Router } from "express";
 import { isAdmin, requireUser, validateRequest } from "../../middleware";
-import { getUserData, getUsers, updateUser, updateUserByAdmin } from "../../controllers/user";
+import { changePassword, getUserData, getUsers, updatePrice, updateUser, updateUserByAdmin } from "../../controllers/user";
 import { updateSchema } from "../../validation/user";
 
 const userRouter = Router();
 
-userRouter.patch("/", requireUser, validateRequest(updateSchema), updateUser);
+userRouter.patch("/", requireUser, updateUser);
 userRouter.get("/", requireUser, getUserData);
-userRouter.get("/get-all", isAdmin, getUsers);
+userRouter.patch("/update-price", requireUser, updatePrice);
+userRouter.get("/get-all", requireUser, getUsers);
 userRouter.patch("/update-by-admin/:id", isAdmin,validateRequest(updateSchema), updateUserByAdmin);
-
+userRouter.patch("/change-password", requireUser, changePassword);
 export default userRouter;
 
 /**

@@ -10,6 +10,8 @@ class User extends Model {
   public price!: number;
   public role!: number;
   public txnRef!: number;
+  public phone!: string; // Add phone
+  public address!: string; // Add address
 
   public status!: number;
 
@@ -54,6 +56,15 @@ User.init(
     txnRef: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
+    },
+    phone: {
+      type: DataTypes.STRING,  // New phone field
+      allowNull: false,
+      unique: true,  // Ensure phone number is unique
+    },
+    address: {
+      type: DataTypes.STRING,  // New address field
+      allowNull: false,
     },
   },
   {

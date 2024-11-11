@@ -8,8 +8,9 @@ class RentalRequest extends Model {
   public userId!: number;
   public playerId!: number;
   public status!: number;
-  public hours!: number;        // New field for rental duration
-  public totalPrice!: number;   // New field for total price
+  public hours!: number;        // Rental duration
+  public totalPrice!: number;   // Total price
+  public rating!: boolean;      // Boolean type for rating
 
   // timestamps!
   public readonly created_at!: Date;
@@ -27,7 +28,7 @@ RentalRequest.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: User,  // Reference to User model
+        model: User,
         key: "id",
       },
       onDelete: "CASCADE",
@@ -36,7 +37,7 @@ RentalRequest.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: Player,  // Reference to Player model
+        model: Player,
         key: "id",
       },
       onDelete: "CASCADE",
@@ -55,6 +56,11 @@ RentalRequest.init(
       type: DataTypes.FLOAT,
       allowNull: false,
       defaultValue: 0,  // Default total price set to 0
+    },
+    rating: {
+      type: DataTypes.BOOLEAN,  // Boolean type for rating
+      allowNull: false,
+      defaultValue: false,      // Default is false
     },
   },
   {

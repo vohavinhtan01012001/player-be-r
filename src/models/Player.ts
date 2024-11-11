@@ -3,6 +3,7 @@ import sequelizeConnection from "../db/connection";
 import Game from "./Game";
 import User from "./User"; // Import User model
 import { compareSync } from "bcrypt";
+import Follower from "./Follower";
 
 interface PlayerAttributes {
     id: number;
@@ -16,6 +17,8 @@ interface PlayerAttributes {
     price?: number;
     userId: number;  // Add userId for relation
     created_at?: Date;
+    phone: string;
+    address: string;
 }
 
 interface PlayerCreationAttributes extends Optional<PlayerAttributes, "id"> {}
@@ -31,7 +34,9 @@ class Player extends Model<PlayerAttributes, PlayerCreationAttributes> implement
     public followers?: number;
     public price?: number;
     public userId!: number;  // Add userId
-
+    public phone!: string;
+    public address!: string;
+    public Users!: User;
     // Timestamps
     public readonly created_at!: Date;
 
@@ -102,6 +107,15 @@ Player.init(
             },
             onDelete: "CASCADE",
         },
+        phone: {
+            type: DataTypes.STRING,  // New phone field
+            allowNull: false,
+            unique: true,  // Ensure phone number is unique
+        },
+        address: {
+            type: DataTypes.STRING,  // New address field
+            allowNull: false,
+        },
     },
     {
         sequelize: sequelizeConnection,
@@ -113,6 +127,12 @@ Player.init(
 Player.validPassword = (password: string, hash: string) => {
     return compareSync(password, hash);
 };
+Follower.belongsTo(User, { foreignKey: "userId", targetKey: "id" });
+Follower.belongsTo(Player, {
+  foreignKey: "playerId",
+  targetKey: "id",
+});
+
 
 Player.associate();
 

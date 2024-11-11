@@ -1,6 +1,10 @@
-import { encryptSync } from "../util/encrypt";
+import { compareSync, encryptSync } from "../util/encrypt";
 import User from "../models/User";
 import { Op, where } from "sequelize";
+import Player from "../models/Player";
+import { createNotificationService, getNotificationsService } from "./notificationService";
+import { io } from "../server";
+import { createChatService } from "./chatService";
 
 export const createUser = async (payload: any) => {
   payload.password = encryptSync(payload.password);
@@ -120,3 +124,79 @@ export const updateUserService = async(data:any,id:number) => {
     where: { id: id },
   });
 };
+
+export const updatePriceService = async (price: number, playerId: number, userId: number,message?:string) => {
+  try {
+    const user = await User.findByPk(userId);
+    const player = await Player.findByPk(playerId);
+
+    if (!user || !player) {
+      throw new Error("User or player not found");
+    }
+
+    const playerUser = await User.findByPk(player.userId);
+    if (!playerUser) {
+      throw new Error("Player's user not found");
+    }
+
+    await User.update(
+      { price: user.price - price },
+      { where: { id: userId } }
+    );
+
+    await User.update(
+      { price: playerUser.price + price },
+      { where: { id: playerUser.id } }
+    );
+    const path = `/rental-request-list?userId=${user.id}`;
+    await createNotificationService({
+      title: "Donate to you",
+      message:  `${user.fullName} has donated ${new Intl.NumberFormat("vi-VN").format(price)}USD to you`,
+      userId: player.userId,
+      path,
+    });
+    const notifications = await getNotificationsService(player.userId);
+    io.emit("newPriceNotification", {
+      userId: player.userId,
+      player: notifications,
+    });
+    const messageData = `
+      <p>Donated <span style="color: red; font-weight: bold;">${new Intl.NumberFormat("en-US").format(price)} VND</span> to the player.</p>
+      <p>${message}</p>
+    `;
+    const chat = await createChatService({
+      playerId,
+      message: messageData,
+      userId: userId,
+      senderType: "user",
+      donate:1
+    });
+    io.emit("newChatMessage", chat);
+    return { message: "Prices updated successfully" };
+  } catch (error) {
+    throw new Error(`Failed to update prices: ${error.message}`);
+  }
+};
+
+export const changePasswordService = async (
+  userId: number,
+  oldPassword: string,
+  newPassword: string
+) => {
+  const user = await User.findByPk(userId);
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  // Verify the old password
+  if (!compareSync(oldPassword, user.password)) {
+    throw new Error("Incorrect old password");
+  }
+
+  // Encrypt and update the new password
+  const encryptedPassword = encryptSync(newPassword);
+  await user.update({ password: encryptedPassword });
+
+  return "Password updated successfully";
+};
+

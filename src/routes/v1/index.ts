@@ -9,6 +9,9 @@ import notificationRouter from "./notificationRoute";
 import paymentRouter from "./paymentRoute";
 import rentalRequestRouter from "./rentalRequestRoute";
 import chatRouter from "./chatRoute";
+import commentRouter from "./commentRoute";
+import followerRouter from "./follower";
+import bannerRouter from "./bannerRoute";
 
 const appRouter = Router();
 
@@ -43,8 +46,20 @@ const appRoutes = [
     router: chatRouter,
   },
   {
+    path: "/comment",
+    router: commentRouter,
+  },
+  {
     path: "/payment",
     router: paymentRouter,
+  },
+  {
+    path: "/follower",
+    router: followerRouter,
+  },  
+  {
+    path: "/banner",
+    router: bannerRouter,
   },
   {
     path: "/docs",

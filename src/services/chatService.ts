@@ -9,8 +9,8 @@ export const getChatsService = async (userId: number,playerId:number) => {
 };
 
 // Create a new chat message
-export const createChatService = async (chatData: { playerId: number; userId: number; message: string,senderType:string }) => {
-  const chat = await Chat.create(chatData as any);  // Create a new chat record in the database
+export const createChatService = async (chatData: { playerId: number; userId: number; message: string,senderType:string,donate?:number }) => {
+  const chat = await Chat.create(chatData as any); 
   return chat;
 };
 

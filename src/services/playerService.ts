@@ -3,7 +3,6 @@ import Game from "../models/Game";
 import { Op, where } from "sequelize";
 import { createUser } from "./userService";
 import User from "../models/User";
-
 export const getPlayersService = async ({ gameId }: { gameId?: number }) => {
     const players = await Player.findAll({
         include: [
@@ -13,6 +12,11 @@ export const getPlayersService = async ({ gameId }: { gameId?: number }) => {
                     where: { id: gameId }
                 }),
                 through: { attributes: [] }
+            },
+            {
+                model: User,
+                as: "user",
+                attributes: ["id", "fullName", "email","password"] 
             }
         ],
         order: [["created_at", "DESC"]]
@@ -36,7 +40,8 @@ export const getPlayersClientService = async ({ gameId }: { gameId?: number }) =
                 [Op.or]: [1, 2, 3] 
             }
         },
-        order: [["created_at", "DESC"]]
+        //DESC hoặc ASC
+        order: [["created_at", "ASC"]]
     });
     return players;
 };
@@ -80,6 +85,8 @@ export const createPlayerService = async (
             fullName: playerData.name,
             email: playerData.email,
             password: playerData.password,
+            phone: playerData.phone,
+            address: playerData.address
         });
         player = await Player.create({ ...playerData, userId: user.id });
     }
@@ -169,4 +176,5 @@ export const updateStatusPlayerService = async (id: number, status: number) => {
     });
     return player;
   };
+
   

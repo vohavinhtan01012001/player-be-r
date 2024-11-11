@@ -34,12 +34,17 @@ playerRouter.put("/update-player/:id",
     updatePlayer
 );
 
-playerRouter.delete("/delete-player/:id", deletePlayer);
+playerRouter.delete("/delete-player/:id", isAdmin,deletePlayer);
 
 playerRouter.patch("/update-status/:id",
     isAdmin,
     updateStatusPlayer
 );
+
+playerRouter.patch("/update-follower/:id",
+    requireUser,
+);
+
 
 playerRouter.get("/get-player", getPlayerData);
 playerRouter.get("/get-player-client/:gameId", getPlayersClient);

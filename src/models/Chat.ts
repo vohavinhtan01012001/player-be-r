@@ -8,12 +8,13 @@ interface ChatAttributes {
   userId?: number;      // Refers to the user (optional if senderType is 'player')
   senderType: "user" | "player"; // Field to determine the sender type
   message: string;
+  donate: number;    
   created_at?: Date;
   updated_at?: Date;
 }
 
 // Optional attributes for creating a Chat record (id will be auto-incremented)
-interface ChatCreationAttributes extends Optional<ChatAttributes, "id"> {}
+interface ChatCreationAttributes extends Optional<ChatAttributes, "id" | "donate"> {}
 
 // Define the Chat model class
 class Chat extends Model<ChatAttributes, ChatCreationAttributes> implements ChatAttributes {
@@ -22,6 +23,7 @@ class Chat extends Model<ChatAttributes, ChatCreationAttributes> implements Chat
   public userId?: number;
   public senderType!: "user" | "player";  // Add the senderType field
   public message!: string;
+  public donate!: number; // New donate field
 
   public readonly created_at!: Date;
   public readonly updated_at!: Date;
@@ -52,6 +54,11 @@ Chat.init(
     message: {
       type: DataTypes.TEXT,
       allowNull: false,
+    },
+    donate: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0, 
     },
     created_at: {
       type: DataTypes.DATE,

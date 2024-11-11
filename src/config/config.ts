@@ -36,6 +36,7 @@ export const otpConfig = {
 export const paymentConfig = {
   tmncode:process.env.PAYMENT_TMNCODE,
   hashsecret:process.env.PAYMENT_HASHSECRET,
+  exchangeRateUSDToVND: process.env.PAYMENT_USD_TO_VND,
 };
 
 export const clientConfig = {
