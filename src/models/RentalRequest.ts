@@ -11,6 +11,7 @@ class RentalRequest extends Model {
   public hours!: number;        // Rental duration
   public totalPrice!: number;   // Total price
   public rating!: boolean;      // Boolean type for rating
+  public endTimeConfirm!: string | null; // End time confirmation
 
   // timestamps!
   public readonly created_at!: Date;
@@ -61,6 +62,11 @@ RentalRequest.init(
       type: DataTypes.BOOLEAN,  // Boolean type for rating
       allowNull: false,
       defaultValue: false,      // Default is false
+    },
+    endTimeConfirm: {
+      type: DataTypes.STRING,  // String type for end time confirmation
+      allowNull: true,         // Allow null values
+      defaultValue: null,      // Default value is null
     },
   },
   {

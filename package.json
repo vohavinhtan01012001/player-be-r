@@ -36,6 +36,7 @@
     "bcrypt": "^5.1.0",
     "cloudinary": "^2.5.1",
     "cors": "^2.8.5",
+    "dayjs": "^1.11.13",
     "dotenv": "8.2.0",
     "errorhandler": "1.5.1",
     "express": "^4.18.2",

@@ -5,6 +5,8 @@ import User from "../models/User";
 import { io } from "../server";
 import { createNotificationService, getNotificationsService } from "./notificationService";
 import Player from "../models/Player";
+import SystemTotalAmount from "../models/SystemTotalAmount";
+import TransactionHistory from "../models/TransactionHistory";
 
 interface SortedObject {
   [key: string]: string;
@@ -135,16 +137,28 @@ export const vnpayIPN = async (
 
             const currentPrice = user.price;
             const depositAmount = amount / 100;
-            const amountDes = depositAmount - (depositAmount * 0.01);
-
-            const newPrice = (currentPrice + amountDes) / exchangeRateUSDToVND;
+            const amountDes = (depositAmount - (depositAmount * 0.01) ) / exchangeRateUSDToVND;
+            const totalAmount = (depositAmount / exchangeRateUSDToVND);
+            const newPrice = (currentPrice + amountDes);
 
             await User.update({ price: newPrice }, { where: { id: userId } });
-
+            const system = await SystemTotalAmount.findByPk(1);
+            await SystemTotalAmount.update({
+              totalAmount: system.totalAmount + totalAmount,
+              transactionFee: system.transactionFee + (totalAmount - amountDes)
+            },{where:{id:1}});
+            
+            await TransactionHistory.create({
+              amount:totalAmount,
+              type: "user",
+              description: `deposited ${new Intl.NumberFormat("USD").format((Number(totalAmount) || 0))} USD excluding transaction fees`,
+              userId: userId,
+            });
+            
             const path = "/profile";
             await createNotificationService({
               title: "Deposit successful",
-              message: `Successfully deposited ${new Intl.NumberFormat("USD").format((Number(amountDes / exchangeRateUSDToVND) || 0))} USD`,
+              message: `Successfully deposited ${new Intl.NumberFormat("USD").format((Number(amountDes) || 0))} USD`,
               userId: userId,
               path,
             });
@@ -176,4 +190,3 @@ export const vnpayIPN = async (
     return { RspCode: "99", Message: "Internal server error" };
   }
 };
-

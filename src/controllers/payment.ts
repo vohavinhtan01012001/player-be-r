@@ -4,6 +4,8 @@ import { customRequest } from "customDefinition";
 import User from "../models/User";
 import { io } from "../server";
 import { createNotificationService } from "../services/notificationService";
+import TransactionHistory from "../models/TransactionHistory";
+import Player from "../models/Player";
 export const paymentVnpay = async (
   req: customRequest,
     res: Response,
@@ -74,6 +76,13 @@ export const withdrawMoney = async (
       message: `${user.fullName} has successfully withdrawn money.`,
       userId: user.id, 
       path
+    });
+    const checkPlayer = await Player.findOne({where:{userId: user.id}});
+    await TransactionHistory.create({
+      amount:-payload.amount,
+      type: checkPlayer ? "player" : "user",
+      description: `withdraw money -${new Intl.NumberFormat("USD").format((Number(payload.amount) || 0))} USD`,
+      userId: user.id,
     });
 
     // Notify success via Socket.IO

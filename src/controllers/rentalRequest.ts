@@ -15,8 +15,10 @@ import RentalRequest from "../models/RentalRequest";
 import Player from "../models/Player";
 import User from "../models/User";
 import { createNotificationService, getNotificationsService } from "../services/notificationService";
-
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 // Get all rental requests
+dayjs.extend(customParseFormat);
 export const getRentalRequests = async (
   req: customRequest,
   res: Response,
@@ -61,7 +63,21 @@ export const updateRentalRequest = async (
   try {
     const { id } = req.params;
     const payload = req.body; 
-    const updatedRentalRequest = await updateRentalRequestService(id, payload.status === 2 ? {...payload,rating:true} :payload );
+    const rentalRequest = await RentalRequest.findByPk(id);
+    console.log(rentalRequest.last_updated);
+    console.log(dayjs().format("YYYY-MM-DD HH:mm:ss"));
+    const updatedRentalRequest = await updateRentalRequestService(
+      id,
+      payload.status === 2
+        ? { ...payload, rating: true }
+        : {
+            ...payload,
+            endTimeConfirm: dayjs() // Ngày giờ hiện tại
+              .add(rentalRequest.hours, "hour") // Thêm số giờ
+              .format("YYYY-MM-DD HH:mm:ss"), // Định dạng thành chuỗi
+          }
+    );
+    
     const player = await Player.findByPk(updatedRentalRequest.playerId);
     const user = await User.findByPk(updatedRentalRequest.userId);
     const userPlayer = await User.findByPk(player.userId);

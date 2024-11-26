@@ -12,6 +12,7 @@ import chatRouter from "./chatRoute";
 import commentRouter from "./commentRoute";
 import followerRouter from "./follower";
 import bannerRouter from "./bannerRoute";
+import transRouter from "./transactionHistory";
 
 const appRouter = Router();
 
@@ -60,6 +61,10 @@ const appRoutes = [
   {
     path: "/banner",
     router: bannerRouter,
+  },
+  {
+    path: "/trans",
+    router: transRouter,
   },
   {
     path: "/docs",
