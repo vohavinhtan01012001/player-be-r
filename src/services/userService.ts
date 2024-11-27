@@ -5,6 +5,7 @@ import Player from "../models/Player";
 import { createNotificationService, getNotificationsService } from "./notificationService";
 import { io } from "../server";
 import { createChatService } from "./chatService";
+import TransactionHistory from "../models/TransactionHistory";
 
 export const createUser = async (payload: any) => {
   payload.password = encryptSync(payload.password);
@@ -154,6 +155,18 @@ export const updatePriceService = async (price: number, playerId: number, userId
       message:  `${user.fullName} has donated ${new Intl.NumberFormat("vi-VN").format(price)}USD to you`,
       userId: player.userId,
       path,
+    });
+    await TransactionHistory.create({
+      amount:price,
+      type: "player",
+      description: `deposited ${new Intl.NumberFormat("USD").format((Number(price) || 0))} USD excluding transaction fees`,
+      userId: player.userId,
+    });
+    await TransactionHistory.create({
+      amount:-price,
+      type: "user",
+      description: `withdraw money -${new Intl.NumberFormat("USD").format((Number(price) || 0))} USD `,
+      userId: user.id,
     });
     const notifications = await getNotificationsService(player.userId);
     io.emit("newPriceNotification", {
