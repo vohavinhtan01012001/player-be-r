@@ -17,6 +17,7 @@ import User from "../models/User";
 import { createNotificationService, getNotificationsService } from "../services/notificationService";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import TransactionHistory from "../models/TransactionHistory";
 // Get all rental requests
 dayjs.extend(customParseFormat);
 export const getRentalRequests = async (
@@ -77,7 +78,6 @@ export const updateRentalRequest = async (
               .format("YYYY-MM-DD HH:mm:ss"), // Định dạng thành chuỗi
           }
     );
-    
     const player = await Player.findByPk(updatedRentalRequest.playerId);
     const user = await User.findByPk(updatedRentalRequest.userId);
     const userPlayer = await User.findByPk(player.userId);
@@ -89,6 +89,18 @@ export const updateRentalRequest = async (
       await Player.update({ status: 2 }, { where: { id: updatedRentalRequest.playerId } });
       await User.update({price:userPlayer.price + updatedRentalRequest.totalPrice},{where:{id:player.userId}});
       await User.update({price:user.price - updatedRentalRequest.totalPrice},{where:{id:user.id}});
+      await TransactionHistory.create({
+        amount:updatedRentalRequest.totalPrice,
+        type: "player",
+        description: `deposited ${new Intl.NumberFormat("USD").format((Number(updatedRentalRequest.totalPrice) || 0))} USD excluding transaction fees`,
+        userId: player.userId,
+      });
+      await TransactionHistory.create({
+        amount:-updatedRentalRequest.totalPrice,
+        type: "user",
+        description: `withdraw money -${new Intl.NumberFormat("USD").format((Number(updatedRentalRequest.totalPrice) || 0))} USD `,
+        userId: user.id,
+      });
     } else {
       path = `/player/${player.id}`;
       await Player.update({ status: 3 }, { where: { id: updatedRentalRequest.playerId } });

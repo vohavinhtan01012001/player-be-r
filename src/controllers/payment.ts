@@ -6,6 +6,7 @@ import { io } from "../server";
 import { createNotificationService } from "../services/notificationService";
 import TransactionHistory from "../models/TransactionHistory";
 import Player from "../models/Player";
+import SystemTotalAmount from "../models/SystemTotalAmount";
 export const paymentVnpay = async (
   req: customRequest,
     res: Response,
@@ -84,6 +85,11 @@ export const withdrawMoney = async (
       description: `withdraw money -${new Intl.NumberFormat("USD").format((Number(payload.amount) || 0))} USD`,
       userId: user.id,
     });
+
+    const system = await SystemTotalAmount.findByPk(1);
+    await SystemTotalAmount.update({
+      totalAmount: system.totalAmount - payload.amount
+    },{where:{id:1}});
 
     // Notify success via Socket.IO
     io.emit("newPriceNotification", {

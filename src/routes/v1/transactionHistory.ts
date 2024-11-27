@@ -3,7 +3,7 @@ import { getSystem, getTransactionHistories } from "../../controllers/transactio
 
 const transRouter = Router();
 
-transRouter.get("/:month/:year", getTransactionHistories);
+transRouter.get("/:month/:year/:userId?", getTransactionHistories);
 transRouter.get("/system", getSystem);
 
 
